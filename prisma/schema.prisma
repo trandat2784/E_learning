@@ -1,0 +1,235 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+ url      = env("DATABASE_URL")
+}
+
+model images{
+   id         String @id @default(auto()) @map("_id") @db.ObjectId
+   file_id    String
+   url        String
+   userId     String?   @db.ObjectId @unique
+   classId    String?   @unique @db.ObjectId
+   users      users?    @relation(fields:[userId],references:[id])
+   classes    classes?  @relation(fields:[classId],references:[id])
+   courses    courses?   @relation(fields:[coursesId],references:[id])
+   coursesId   String?   @db.ObjectId
+
+}
+
+model classReviews {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String
+  user      users    @relation(fields:[userId],references:[id])
+  rating    Float
+  reviews   String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  classesId String?   @db.ObjectId
+  classes   classes?  @relation(fields:[classesId],references:[id])
+}
+
+model users{
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  email           String    @unique
+  password        String?
+  following       String[]
+  avatar          images?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  classReviews    classReviews[]
+  role            String
+
+  orders          orders[]
+
+}
+
+model classes {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  bio             String?
+  category        String
+  avatar          images?
+  coverBanner     String?
+  address         String
+  opening_hours   String?
+  website     String?
+  socialLinks Json[]
+  ratings     Float           @default(0)
+  reviews     classReviews[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  professorId     String             @unique   @db.ObjectId
+  professors        professors        @relation(fields:[professorId],references:[id])
+    courses         courses[]   // Quan hệ với courses
+    orders          orders[]
+}
+
+model professors{
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  email         String @unique
+  phone_number  String
+  country       String
+  password      String
+  stripeId      String?
+  class         classes?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  isDeleted     Boolean  @default(false)
+  deletedAt     DateTime?
+}
+
+model site_config{
+    id String       @id @default(auto()) @map("_id") @db.ObjectId
+    categories      String[]
+    subCategories   Json
+    logo            String?
+    banner          String?
+}
+model discount_codes {
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    public_name String
+    discountType String
+    discountValue Float
+    discountCode    String @unique
+    professorId        String @db.ObjectId
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+
+}
+enum courseStatus {
+    Active
+    Pending
+    Draft
+}
+model courses {
+ id                     String @id @default(auto()) @map("_id") @db.ObjectId
+ title                  String
+ slug                   String @unique
+ category               String
+ subCategory            String
+ short_description      String
+ detailed_description   String
+ images                 images[]
+ video_url              String?
+ tags                   String[]
+ brand                  String?
+ colors                 String[]
+ sizes                  String[]
+ starting_date          DateTime?
+ ending_date            DateTime?
+ stock                  Int
+ sale_price             Float
+ regular_price          Float
+ ratings                Float   @default(5)
+ warranty               String
+ custom_specifications  Json?
+ custom_properties      Json
+ isDeleted              Boolean? @default(false)
+ cashOnDelivery         String?
+ discount_codes         String[]  @db.ObjectId
+ status                 courseStatus  @default(Active)
+ totalSales             Int @default(0)
+ deletedAt              DateTime?
+ createdAt              DateTime @default(now())
+ updatedAt              DateTime @updatedAt
+ classId                String  @db.ObjectId
+ Class                  classes @relation(fields: [classId],references :[id])
+
+}
+model userAnalytics {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String    @unique
+  country         String?
+  city            String?
+  device          String?
+  lastVisited     DateTime
+  actions         Json[]
+  recommendations Json?
+  lastTrained     DateTime @default(now())
+
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+}
+
+model productAnalytics {
+  id              String @id @default(auto()) @map("_id") @db.ObjectId
+  productId       String @unique
+  classId          String
+  views           Int @default(0)
+  cartAdds        Int @default(0)
+  wishListAdds    Int @default(0)
+  purchases       Int @default(0)
+  lastViewedAt    DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+}
+
+model classAnalytics{
+   id              String @id @default(auto()) @map("_id") @db.ObjectId
+   totalVisitors    Int @default(0)
+  countryStats    Json    //store aggregated country data {"US":50,"IN":30}
+  cityStats       Json  //store aggregated device data {"New York":50,"Delhi":30}
+  deviceStats     Json?  //store aggregated device data {"mobile":50,"desktop":30}
+  lastVisitedAt   DateTime
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model  uniqueClassVisitors{
+    id                  String  @id @default(auto()) @map("_id") @db.ObjectId
+    classId             String  @db.ObjectId
+    userId              String  @db.ObjectId
+    visitedAt           DateTime @default(now())
+    @@unique([classId,userId])
+}
+
+model orders{
+
+
+    id                  String  @id @default(auto()) @map("_id") @db.ObjectId
+    userId              String  @db.ObjectId
+    user                users   @relation(fields:[userId], references: [id])
+    classId             String  @db.ObjectId
+    class               classes @relation(fields:[classId],references:[id])
+    total               Float
+
+    couponCode          String?
+    deliveryStatus      String @default("Ordered")
+    status              String
+    items               orderItems[] @relation("OrderItemsRelation")
+    createdAt           DateTime @default(now())
+    updatedAt           DateTime @updatedAt
+}
+
+model orderItems {
+    id              String @id @default(auto()) @map("_id") @db.ObjectId
+    orderId         String
+    productId           String
+    quantity            Int
+    price           Float
+    selectedOptions Json?
+    orders          orders @relation(fields:[orderId],references:[id],name:"OrderItemsRelation")
+    createdAt       DateTime @default(now())
+
+}
+model notifications{
+    id              String @id @default(auto()) @map("_id") @db.ObjectId
+    creatorId       String @db.ObjectId
+    receiverId      String
+    redirect_link   String?
+    title           String
+    message         String
+    status          String @default("Unread")
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+}
