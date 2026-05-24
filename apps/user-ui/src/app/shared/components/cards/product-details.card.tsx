@@ -9,6 +9,8 @@ import useLocationTracking from "../../../../hooks/useLocationTracking";
 import useDeviceTracking from "../../../../hooks/useDeviceTracking";
 import {useStore} from "../../../../store";
 import useUser from "../../../../hooks/useUser";
+import axiosInstance from "../../../../utils/axiosInstance";
+import {isProtected} from "../../../../utils/protected";
 
 const ProductDetailsCard = ({data, setOpen}: { data: any, setOpen: (open: boolean) => void }) => {
     const [activeImage, setActiveImage] = React.useState(0);
@@ -19,7 +21,7 @@ const ProductDetailsCard = ({data, setOpen}: { data: any, setOpen: (open: boolea
     estimatedDelivery.setDate(estimatedDelivery.getDate() + 5)
     const router = useRouter();
     const {user} = useUser();
-
+    const [isLoading, setIsLoading] = React.useState(false);
     const location = useLocationTracking()
     const deviceInfo = useDeviceTracking()
     const addToWishlist = useStore((state: any) => state.addToWishlist);
@@ -29,6 +31,24 @@ const ProductDetailsCard = ({data, setOpen}: { data: any, setOpen: (open: boolea
     const isWishlisted = wishlist?.some((item: any) => item.id == data.id)
     const cart = useStore((state: any) => state.cart);
     const isInCart = cart.some((item: any) => item.id == data.id);
+
+    const router = useRouter();
+    const handleChat = async () => {
+        if (isLoading) {
+            return
+        }
+        setIsLoading(true);
+        try {
+            const res = await axiosInstance.post("/chatting/api/create-user-conversationGroup",
+                {professorId: data?.class?.professorId}, isProtected)
+            router.push(`/inbox?conversationId=${res.data.conversation.id}`);
+
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
     return (
         <div className={"fixed flex items-center justify-center top-0 left-0 h-screen  w-full bg-[#0000001d] z-50"}
              onClick={() => setOpen(false)}>
@@ -97,7 +117,7 @@ const ProductDetailsCard = ({data, setOpen}: { data: any, setOpen: (open: boolea
                             </div>
                             <button
                                 className={"flex cursor-pointer items-center gap-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium "}
-                                onClick={() => router.push(`/inbox?classId=${data?.Class?.id}`)}
+                                onClick={() => handleChat}
                             >
                                 Chat with Professor
                             </button>

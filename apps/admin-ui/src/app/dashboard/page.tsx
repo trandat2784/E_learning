@@ -2,7 +2,6 @@
 import React from 'react';
 import {flexRender, getCoreRowModel, useReactTable} from "@tanstack/react-table";
 import {Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip} from "recharts"
-import GeographicalMap from "../../shared/components/charts/geographicalMap";
 
 const deviceData = [
     {name: "Phone", value: 55},
@@ -190,11 +189,11 @@ const DashboardPage = () => {
                     Visual breakdown of global user & seller activity
                 </span>
                 </h2>
-                <GeographicalMap/>
+                {/*<GeographicalMap/>*/}
             </div>
             {/*    Order table*/}
             <div className={"w-[40%]"}>
-                <OrdersTable/>
+                {/*<OrdersTable/>*/}
             </div>
         </div>
     </div>;

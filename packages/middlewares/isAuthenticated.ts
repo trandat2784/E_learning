@@ -11,8 +11,9 @@ const isAuthenticated = async (req: any, res: Response, next: NextFunction) => {
         //verify token
         const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as {
             id: string;
-            role: 'user' | 'professor';
+            role: 'user' | 'professor' | 'admin';
         };
+        console.log("admin decode", decoded);
         console.log(decoded);
         if (!decoded) {
             return res.status(401).json({
@@ -31,6 +32,12 @@ const isAuthenticated = async (req: any, res: Response, next: NextFunction) => {
                 include: {class: true}
             });
             req.professor = account;
+        } else if (decoded.role == "admin") {
+            account = await prisma.users.findUnique({
+                where: {id: decoded.id},
+            });
+            console.log("admin acount decode", account, decoded)
+            req.admin = account;
         }
 
         if (!account) {

@@ -2,8 +2,10 @@ import express, {Router} from 'express';
 import {
   createClass,
   createStripeConnectLink,
+  getAdmin,
   getProfessor,
   getUser,
+  loginAdmin,
   loginProfessor,
   loginUser,
   logOutUser,
@@ -18,7 +20,7 @@ import {
 } from '../controller/auth.controller';
 
 
-import {isProfessor} from "../../../../packages/middlewares/authorizeRoles";
+import {isAdmin, isProfessor} from "../../../../packages/middlewares/authorizeRoles";
 
 import isAuthenticated from "../../../../packages/middlewares/isAuthenticated";
 // import { verifyForgotPasswordOtp } from "../utils/auth.helper";
@@ -36,7 +38,8 @@ router.post("/professor-registration", registerProfessor)
 router.post("/verify-professor", verifyProfessor)
 router.post("/create-class", createClass)
 router.post("/create-stripe-link", createStripeConnectLink)
-router.post("login-admin", loginAdmin)
+router.post("/login-admin", loginAdmin)
+router.get("/logged-in-admin", isAuthenticated, isAdmin, getAdmin)
 router.post("/login-professor", loginProfessor)
 router.get("/logged-in-professor", isAuthenticated, isProfessor, getProfessor)
 

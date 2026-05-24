@@ -1,7 +1,7 @@
 "use client"
 import React from 'react';
 import {useForm} from "react-hook-form";
-import {useRouter} from "next/router";
+import {useRouter} from "next/navigation";
 import Input from "../../../../packages/components/input";
 import {useMutation} from "@tanstack/react-query";
 import axios, {AxiosError} from "axios";
@@ -12,12 +12,13 @@ type FormData = {
 }
 
 const Page = () => {
+    const router = useRouter();
     const {register, handleSubmit} = useForm<FormData>();
     const [serverError, setServerError] = React.useState<string | null>();
-    const router = useRouter();
-    const loginMuation = useMutation({
+    const loginMutation = useMutation({
         mutationFn: async (data: FormData) => {
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URI}/api/login-admin`, data, {withCredentials: true});
+            const response = await axios.post(`http://localhost:8080/api/login-admin`,
+                data, {withCredentials: true});
             return response.data;
         },
         onSuccess: (data) => {
@@ -31,7 +32,7 @@ const Page = () => {
     })
     //login mutation
     const onSubmit = (data: FormData) => {
-        loginMuation.mutate(data);
+        loginMutation.mutate(data);
     }
     return (
         <div className={"w-full h-screen flex items-center justify-center"}>
@@ -43,6 +44,7 @@ const Page = () => {
                     <Input
                         label="Email"
                         placeholder={"Email..."}
+                        value={"subnautica@gmail.com"}
                         {...register("email", {
                             required: "Email is required",
                             pattern: {
@@ -56,6 +58,7 @@ const Page = () => {
                         <Input
                             type={'password'}
                             placeholder="Password...."
+                            value={"password"}
                             {...register('password', {
                                 required: 'Password is required',
 
@@ -63,11 +66,11 @@ const Page = () => {
                         />
                     </div>
                     <button
-                        disabled={loginMuation.isPending}
+                        disabled={loginMutation.isPending}
                         className={"w-full mt-5 text-xl flex justify-center font-semibold font-Poppins cursor-pointer bg-blue-600 text-white py-2 rounded-lg"}
                         type="submit"
                     >
-                        {loginMuation.isPending ? (
+                        {loginMutation.isPending ? (
                             <div
                                 className={"h-6 w-6 border-2 border-gray-100 border-t-transparent rounded-full animate-spin"}/>
                         ) : (

@@ -11,10 +11,9 @@ const Layout = ({children}: { children: React.ReactNode }) => {
         {/*main content*/}
         <main className={"flex-1"}>
             <div className={"overflow-auto"}>
-
                 {children}
             </div>
         </main>
-        {children}
     </div>
 }
+export default Layout

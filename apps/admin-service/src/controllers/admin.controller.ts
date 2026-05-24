@@ -9,11 +9,12 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 20;
         const skip = (page - 1) * limit;
+
         const [courses, totalCourses] = await Promise.all([
             prisma.courses.findMany({
-                where: {
-                    starting_date: null
-                },
+                // where: {
+                //     starting_date: null
+                // },
                 skip, take: limit,
                 orderBy: {createdAt: "desc"},
                 select: {
@@ -32,12 +33,13 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
                 }
             }),
             prisma.courses.count({
-                where: {
-                    starting_date: null,
-                }
+                // where: {
+                //     starting_date: null,
+                // }
             })
         ])
         const totalPages = Math.ceil(totalCourses / page);
+        console.log("run courses", courses);
         res.status(200).json({
             success: true,
             data: courses,
@@ -160,6 +162,7 @@ export const getAllUsers = async (req: Request, res: Response, next: NextFunctio
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 20;
         const skip = (page - 1) * limit;
+
         const [users, totalUsers] = await Promise.all([
             prisma.users.findMany({
                 skip,
@@ -176,6 +179,7 @@ export const getAllUsers = async (req: Request, res: Response, next: NextFunctio
             }),
             prisma.users.count()
         ])
+        console.log("user all admin", users)
         const totalPages = Math.ceil(totalUsers / page);
         res.status(200).json({
             success: true,

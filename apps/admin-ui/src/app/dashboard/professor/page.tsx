@@ -1,3 +1,4 @@
+"use client"
 import React, {useDeferredValue, useMemo} from 'react';
 import {useQuery, UseQueryResult} from "@tanstack/react-query";
 import axiosInstance from "../../../utils/axiosInstance";
@@ -194,7 +195,7 @@ const ProfessorsPage = () => {
                             </p>
                         ) :
                         (
-                            <table>
+                            <table className={"w-full text-white"}>
                                 <thead>
                                 {
                                     table.getHeaderGroups().map((headerGroup: any) => (
@@ -223,7 +224,7 @@ const ProfessorsPage = () => {
                                                 row.getVisibleCells().map((cell: any) => (
                                                     <td key={cell.id} className={"p-3"}>
                                                         {
-                                                            flexRender(cell.column.columnDef.header,
+                                                            flexRender(cell.column.columnDef.cell,
                                                                 cell.getContext())
                                                         }
                                                     </td>

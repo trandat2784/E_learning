@@ -42,7 +42,7 @@ app.use(limiter);
 app.get('/gateway-health', (req, res) => {
     res.send({message: 'Welcome to api-gateway!'});
 });
-
+app.use("/chatting", proxy("http://localhost:6006"));
 app.use("/admin", proxy("http://localhost:6005"));
 app.use('/product', proxy('http://localhost:6002'));
 app.use('/', proxy('http://localhost:6001'));

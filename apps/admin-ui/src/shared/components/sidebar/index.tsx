@@ -1,7 +1,8 @@
+"use client"
 import React, {useEffect} from 'react';
 import useSidebar from "../../../hooks/useSidebar";
 import {usePathname} from "next/navigation";
-import useAdmin from "../../../hooks/useAdmin";
+// import useAdmin from "../../../hooks/useAdmin";
 import Box from "../box";
 import {SideBar} from "./sidebar.styles";
 import Link from "next/link";
@@ -26,7 +27,7 @@ import Payment from "../../../assets/icons/payment";
 const SidebarWrapper = () => {
     const {activeSidebar, setActiveSidebar} = useSidebar();
     const pathname = usePathname()
-    const {admin} = useAdmin()
+    // const {admin} = useAdmin()
 
     useEffect(() => {
         setActiveSidebar(pathname)
@@ -52,10 +53,10 @@ const SidebarWrapper = () => {
                         <Logo/>
                         <Box>
                             <h3 className={"text-xl font-medium text-[#ecedee]"}>
-                                {admin?.name}
+                                {/*{admin?.name}*/}
                             </h3>
                             <h5 className={"font-medium pl-2 text-[#ecedeecf] whitespace-nowrap "}>
-                                {admin?.email}
+                                {/*{admin?.email}*/}
                             </h5>
                         </Box>
                     </Link>
@@ -95,10 +96,10 @@ const SidebarWrapper = () => {
                                 href={"/dashboard/users"}
                                 isActive={activeSidebar == "/dashboard/users"}/>
                             <SidebarItem
-                                title={"Classes"}
-                                icon={<Store color={getIconColor("/dashboard/classes")}/>}
-                                href={"/dashboard/classes"}
-                                isActive={activeSidebar == "/dashboard/classes"}/>
+                                title={"Professors"}
+                                icon={<Store color={getIconColor("/dashboard/professor")}/>}
+                                href={"/dashboard/professor"}
+                                isActive={activeSidebar == "/dashboard/professor"}/>
                         </SidebarMenu>
                         <SidebarMenu title={"Controllers"}>
                             <SidebarItem

@@ -7,7 +7,8 @@
     "auth-docs": "node apps/auth-service/src/swagger.js",
     "product-docs": "node apps/product-service/src/swagger.js",
     "user-ui": "npx nx run-many --target=dev --all --projects=user-ui",
-    "professor-ui": "npx nx run-many --target=dev --all --projects=professor-ui"
+    "professor-ui": "npx nx run-many --target=dev --all --projects=professor-ui",
+    "admin-ui": "npx nx run-many --target=dev --all --projects=admin-ui"
   },
   "private": true,
   "devDependencies": {
@@ -69,9 +70,11 @@
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "ejs": "^5.0.1",
+    "emoji-picker-react": "^4.19.1",
     "express": "^4.22.1",
     "express-http-proxy": "^2.1.2",
     "express-rate-limit": "^8.3.1",
+    "file-saver": "^2.0.5",
     "framer-motion": "^12.40.0",
     "imagekit": "^6.0.0",
     "ioredis": "^5.10.0",

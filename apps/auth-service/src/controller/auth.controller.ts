@@ -423,6 +423,18 @@ export const getProfessor = async (req: any, res: Response, next: NextFunction) 
         next(error);
     }
 };
+export const getAdmin = async (req: any, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user;
+        console.log("user admin get admin", user);
+        res.status(201).json({
+            success: true,
+            user,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 export const logOutAdmin = async (req: any, res: Response) => {
     res.clearCookie("access_token");
     res.clearCookie("refresh_token");

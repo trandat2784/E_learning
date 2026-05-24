@@ -21,6 +21,7 @@ const AllProductsPage = () => {
     const deferredFilter = useDeferredValue(globalFilter);
     const [page, setPage] = React.useState(1);
     const limit = 10;
+
     const {data, isLoading}: UseQueryResult<any> = useQuery({
         queryKey: ['all-products', page],
         queryFn: async () => {
@@ -179,7 +180,7 @@ const AllProductsPage = () => {
                             </p>
                         ) :
                         (
-                            <table>
+                            <table className={"w-full text-white"}>
                                 <thead>
                                 {
                                     table.getHeaderGroups().map((headerGroup: any) => (
@@ -208,7 +209,7 @@ const AllProductsPage = () => {
                                                 row.getVisibleCells().map((cell: any) => (
                                                     <td key={cell.id} className={"p-3"}>
                                                         {
-                                                            flexRender(cell.column.columnDef.header,
+                                                            flexRender(cell.column.columnDef.cell,
                                                                 cell.getContext())
                                                         }
                                                     </td>
