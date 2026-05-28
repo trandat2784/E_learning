@@ -32,7 +32,7 @@ const Login = () => {
             return response.data;
         },
         onSuccess: (data) => {
-            (setServerError(null), router.push('/'));
+            (setServerError(null), router.push('/dashboard/lesson'));
         },
         onError: (error: AxiosError) => {
             const errorMessage =

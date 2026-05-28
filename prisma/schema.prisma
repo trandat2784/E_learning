@@ -8,19 +8,17 @@ datasource db {
  url      = env("DATABASE_URL")
 }
 
+
 model images{
-   id         String @id @default(auto()) @map("_id") @db.ObjectId
-   file_id    String
-   url        String
-   userId     String?   @db.ObjectId @unique
-   classId    String?   @unique @db.ObjectId
-   users      users?    @relation(fields:[userId],references:[id])
-   classes    classes?  @relation(fields:[classId],references:[id])
-   courses    courses?   @relation(fields:[coursesId],references:[id])
-   coursesId   String?   @db.ObjectId
+      id         String @id @default(auto()) @map("_id") @db.ObjectId
+      file_id    String
+      url        String
+      userId     String?   @db.ObjectId @unique
+      classId    String?   @unique @db.ObjectId
+      users      users?    @relation(fields:[userId],references:[id])
+      classes    classes?  @relation(fields:[classId],references:[id])
 
 }
-
 model classReviews {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   userId    String
@@ -111,28 +109,19 @@ enum courseStatus {
 model courses {
  id                     String @id @default(auto()) @map("_id") @db.ObjectId
  title                  String
- slug                   String @unique
  category               String
  subCategory            String
  short_description      String
  detailed_description   String
- images                 images[]
- video_url              String?
+ image_url              String?
  tags                   String[]
- brand                  String?
- colors                 String[]
- sizes                  String[]
  starting_date          DateTime?
  ending_date            DateTime?
- stock                  Int
  sale_price             Float
  regular_price          Float
  ratings                Float   @default(5)
- warranty               String
  custom_specifications  Json?
- custom_properties      Json
  isDeleted              Boolean? @default(false)
- cashOnDelivery         String?
  discount_codes         String[]  @db.ObjectId
  status                 courseStatus  @default(Active)
  totalSales             Int @default(0)
@@ -141,8 +130,26 @@ model courses {
  updatedAt              DateTime @updatedAt
  classId                String  @db.ObjectId
  Class                  classes @relation(fields: [classId],references :[id])
+ videos                 lesson[]  @relation("CourseLessonRelation")
+}
+model lesson {
+     id                     String @id @default(auto()) @map("_id") @db.ObjectId
+     courseId               String  @db.ObjectId
+     course                 courses @relation(fields: [courseId], references: [id], name: "CourseLessonRelation", onDelete: Cascade)
+     title                  String
+     description            String?
+     video_url              String
+     duration               Int?                    // Thời lượng video (giây)
+     order                  Int?     @default(1)    // Thứ tự video trong khóa học
+     isPublished            Boolean @default(true) // Trạng thái công khai
+     views                  Int?     @default(0)    // Số lượt xem
+     isDeleted              Boolean @default(false)
+     deletedAt              DateTime?
+     createdAt              DateTime @default(now())
+     updatedAt              DateTime @updatedAt
 
 }
+
 model userAnalytics {
   id              String    @id @default(auto()) @map("_id") @db.ObjectId
   userId          String    @unique
@@ -263,4 +270,11 @@ model message{
     status          String @default("sent")
     createdAt       DateTime    @default(now())
     @@unique([conversationId,senderId,content,createdAt])
+}
+model rooms {
+    id              String @id @default(auto()) @map("_id") @db.ObjectId
+    professorId     String?
+    title           String?
+    createdAt       DateTime    @default(now())
+    roomId          String?
 }

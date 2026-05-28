@@ -59,8 +59,8 @@ const CourseList = () => {
                     console.log(row.original);
                     return (
                         <Image
-                            src={row.original.images[0]?.url}
-                            alt={row.original.images[0]?.url || '/placeholder-image.png'}
+                            src={row.original.image_url}
+                            alt={row.original.images_url || '/placeholder-image.png'}
 
                             width={200}
                             height={200}
@@ -92,14 +92,7 @@ const CourseList = () => {
                 header: "Price",
                 cell: ({row}: any) => <span>${row.original.sale_price}</span>
             },
-            {
-                accessorKey: "stock",
-                header: "Stock",
-                cell: ({row}: any) =>
-                    <span className={row.original.stock < 10 ? "text-red-500" : "text-white"}>
-                    {row.original.stock} left
-                </span>
-            },
+
             {
                 accessorKey: "category",
                 header: "Category",
@@ -119,7 +112,7 @@ const CourseList = () => {
                 cell: ({row}: any) => (
                     <div className={"flex gap-3"}>
                         <Link
-                            href={`/product/${row.original.id}`}
+                            href={`/dashboard/lessons/${row.original.id}`}
                             className={"text-blue-400 hover:text-blue-300 transition"}
                         >
                             <Eye size={18}/>

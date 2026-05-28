@@ -24,9 +24,13 @@ app.use(
 );
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 app.use(morgan('dev'));
-app.use(express.json({limit: '100mb'}));
-app.use(express.urlencoded({limit: '100mb', extended: true}));
+app.use(express.json({limit: '500mb'}));
+app.use(express.urlencoded({limit: '500mb ', extended: true}));
 app.use(cookieParser());
+app.use((req, res, next) => {
+    res.setHeader('Connection', 'keep-alive');
+    next();
+});
 app.set('trust proxy', 1);
 //apply rate limiting
 const limiter = rateLimit({
@@ -42,9 +46,14 @@ app.use(limiter);
 app.get('/gateway-health', (req, res) => {
     res.send({message: 'Welcome to api-gateway!'});
 });
+app.use("/recommendation", proxy("http://localhost:6007"));
 app.use("/chatting", proxy("http://localhost:6006"));
 app.use("/admin", proxy("http://localhost:6005"));
-app.use('/product', proxy('http://localhost:6002'));
+app.use("/order", proxy("http://localhost:6003"));
+app.use('/product', proxy('http://localhost:6002', {
+
+    timeout: 10 * 60 * 1000,
+}));
 app.use('/', proxy('http://localhost:6001'));
 
 const port = process.env.PORT || 8080;

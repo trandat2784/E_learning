@@ -146,7 +146,7 @@ export const getProfessorConversation = async (req: any, res: Response, next: Ne
                 const userParticipant = await prisma.participant.findFirst({
                     where: {
                         conversationId: group.id,
-                        professorId: {not: null}
+                        userId: {not: null}
 
                     }
                 })
@@ -183,7 +183,7 @@ export const getProfessorConversation = async (req: any, res: Response, next: Ne
                 const unreadCount = await getUnseenCount("professor", group.id)
                 return {
                     conversationId: group.id,
-                    professor: {
+                    user: {
                         id: user?.id || null,
                         name: user?.name || "Unknown",
                         isOnline,
@@ -196,6 +196,7 @@ export const getProfessorConversation = async (req: any, res: Response, next: Ne
                 }
             })
         )
+        console.log("responseData", responseData)
         return res.status(200).json({conversations: responseData})
     } catch (error) {
         return next(error)

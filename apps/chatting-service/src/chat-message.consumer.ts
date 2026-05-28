@@ -51,6 +51,7 @@ async function flushBufferToDb() {
     }
     if (toInsert.length == 0) return
     try {
+        console.log("msg", toInsert)
         const prismaPayload = toInsert.map(msg => ({
             conversationId: msg.conversationId,
             senderId: msg.senderId,

@@ -4,18 +4,23 @@
  */
 
 import express from 'express';
-import * as path from 'path';
+import router from "./routes/order.route";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 
 const app = express();
-
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
-
-app.get('/api', (req, res) => {
-  res.send({ message: 'Welcome to order-service!' });
-});
-
-const port = process.env.PORT || 3333;
+app.use(
+    cors({
+        origin: ['http://localhost:3000'],
+        allowedHeaders: ['Authorization', 'Content-Type'],
+        credentials: true,
+    })
+);
+app.use(express.json({limit: '50mb'}));
+app.use(cookieParser());
+app.use('/api', router);
+const port = process.env.PORT || 6003;
 const server = app.listen(port, () => {
-  console.log(`Listening at http://localhost:${port}/api`);
+    console.log(`Listening at http://loc    alhost:${port}/api`);
 });
 server.on('error', console.error);

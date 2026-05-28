@@ -32,16 +32,19 @@ const ProductDetailsCard = ({data, setOpen}: { data: any, setOpen: (open: boolea
     const cart = useStore((state: any) => state.cart);
     const isInCart = cart.some((item: any) => item.id == data.id);
 
-    const router = useRouter();
+
     const handleChat = async () => {
+        console.log("data", data)
+
         if (isLoading) {
             return
         }
         setIsLoading(true);
         try {
             const res = await axiosInstance.post("/chatting/api/create-user-conversationGroup",
-                {professorId: data?.class?.professorId}, isProtected)
-            router.push(`/inbox?conversationId=${res.data.conversation.id}`);
+                {professorId: data?.Class?.professorId}, isProtected)
+            console.log("res", res)
+            router.push(`/inbox?conversationId=${res.data.newConversation.id}`);
 
         } catch (error) {
             console.log(error);
@@ -117,7 +120,7 @@ const ProductDetailsCard = ({data, setOpen}: { data: any, setOpen: (open: boolea
                             </div>
                             <button
                                 className={"flex cursor-pointer items-center gap-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium "}
-                                onClick={() => handleChat}
+                                onClick={() => handleChat()}
                             >
                                 Chat with Professor
                             </button>

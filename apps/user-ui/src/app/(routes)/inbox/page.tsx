@@ -7,6 +7,7 @@ import axiosInstance from "../../../utils/axiosInstance";
 import {isProtected} from "../../../utils/protected";
 import Image from "next/image";
 import Chatinput from "../../shared/components/chats/chatinput";
+import {useWebSocket} from "../../../context/web-socket-context";
 
 const Page = () => {
     const searchParams = useSearchParams();
@@ -25,6 +26,7 @@ const Page = () => {
     const [page, setPage] = useState(1);
     const [hasFetchedOne, setHasFetchedOne] = useState(false);
     const conversationId = searchParams.get("conversationId");
+    const {ws} = useWebSocket()
 
     const {data: messages = []} = useQuery({
         queryKey: ["messages", conversationId],
@@ -67,14 +69,98 @@ const Page = () => {
     useEffect(() => {
         if (conversations) setChats(conversations);
     }, [conversations])
+
+    useEffect(() => {
+        if (messages?.length > 0) scrollToBottom()
+    }, [messages]);
+
     useEffect(() => {
         if (conversationId && chats.length > 0) {
             const chat = chats.find((chat) => chat.conversationId === conversationId);
             setSelectedChat(chat || null);
         }
     }, [conversationId, chats]);
+    useEffect(() => {
+        if (!ws) return
+        ws.onmessage = (event: any) => {
+            const data = JSON.parse(event.data)
+            if (data.type == "NEW_MESSAGE") {
+                const newMsg = data?.payload;
+                console.log("newMsg", newMsg)
+                if (newMsg?.conversationId == conversationId) {
+                    queryClient.setQueryData(
+                        ["messages", conversationId],
+                        (old: any = []) => [
+                            ...old,
+                            {
+                                content: newMsg.content,
+                                senderType: newMsg.senderType,
+                                seen: false,
+                                createdAt: new Date().toISOString(),
+                            }
+                        ]
+                    )
+                    scrollToBottom()
+                }
+                setChats((prevChats) =>
+                    prevChats.map((chat) =>
+                        chat.conversationId == newMsg.conversationId
+                            ? {...chat, lastMessage: newMsg.content}
+                            : chat
+                    )
+                )
+
+            }
+            if (data.type === "UNSEEN_COUNT_UPDATE") {
+                const {conversationId, count} = data.payload;
+                setChats((prevChats) =>
+                    prevChats.map((chat) =>
+                        chat.conversationId === conversationId
+                            ? {...chat, unreadCount: count}
+                            : chat
+                    )
+                )
+            }
+        }
+    }, [ws, queryClient]);
+    const scrollToBottom = () => {
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                scrollAnchorRef.current?.scrollIntoView({behavior: "smooth"});
+            }, 0)
+        })
+    }
+
     const handleSend = async (e: any) => {
         e.preventDefault();
+        if (!message.trim() || !selectedChat) return;
+        const payload = {
+            fromUserId: user?.id,
+            toUserId: selectedChat?.professor?.id,
+            conversationId: selectedChat?.conversationId,
+            messageBody: message,
+            senderType: "user",
+        }
+        ws?.send(JSON.stringify(payload))
+        // queryClient.setQueryData(
+        //     ["messages", selectedChat.conversationId],
+        //     (old: any = []) => [
+        //         ...old, {
+        //             content: payload.messageBody,
+        //             senderType: "user",
+        //             seen: false,
+        //             createdAt: new Date().toISOString(),
+        //         }
+        //     ]
+        // )
+        setChats((prevChats) =>
+            prevChats.map((chat) => chat.conversationId
+                ? {...chat, lastMessage: payload.messageBody}
+                : chat
+            )
+        )
+        setMessage("")
+        scrollToBottom()
     }
     const handleChatSelect = (chat: any) => {
         setHasFetchedOne(false)
@@ -84,6 +170,10 @@ const Page = () => {
             )
         )
         router.push(`?conversationId=${chat.conversationId}`);
+        ws?.send(JSON.stringify({
+            type: "MARK_AS_SEEN",
+            conversationId: chat.conversationId,
+        }));
     }
 
     const getLastMessage = (chat: any) => chat?.lastMessage || "";
@@ -116,9 +206,11 @@ const Page = () => {
                                                         ? "bg-blue-100"
                                                         : ""}`}>
                                                 <div className={"flex items-center gap-3"}>
-                                                    <Image src={chat.profesor?.avatar || ""} alt={chat.professor?.name}
-                                                           width={36} height={36}
-                                                           className={"rounded-full border  w-[40px] object-cover object-cover"}
+                                                    <Image
+                                                        src={chat.profesor?.avatar || "https://ik.imagekit.io/trandat/products/product-1777042061276_MdcgHiWIc.jgg"}
+                                                        alt={chat.professor?.name}
+                                                        width={36} height={36}
+                                                        className={"rounded-full border  w-[40px] object-cover object-cover"}
                                                     />
                                                 </div>
                                                 <div className={"flex-1"}>
@@ -133,9 +225,18 @@ const Page = () => {
                                                             )
                                                         }
                                                     </div>
-                                                    <p className={"text-xs text-gray-500 truncate max-w-[170px]"}>
-                                                        {getLastMessage(chat)}
-                                                    </p>
+                                                    <div className={"flex items-center justify-between"}>
+                                                        <p className={"text-xs text-gray-500 truncate max-w-[170px]"}>
+                                                            {getLastMessage(chat)}
+                                                        </p>
+                                                        {
+                                                            chat?.unreadCount > 0 && (
+                                                                <span className={"ml-2 text-[10px] bg-blue-600 text-white"}>
+                                                                    {chat?.unreadCount}
+                                                                </span>
+                                                            )
+                                                        }
+                                                    </div>
                                                 </div>
                                             </button>
                                         )
@@ -149,11 +250,12 @@ const Page = () => {
                             selectedChat ? (
                                 <>
                                     <div className={"p-4 border-b-gray-200 bg-white flex items-center gap-3"}>
-                                        <Image src={selectedChat.professor?.avatar || ""}
-                                               alt={selectedChat?.professor?.name}
-                                               width={40}
-                                               height={40}
-                                               className={"rounded-full border  w-[40px] h-[40px] object-cover border-gray-200"}
+                                        <Image
+                                            src={selectedChat.professor?.avatar || "https://ik.imagekit.io/trandat/products/product-1777042061276_MdcgHiWIc.jgg"}
+                                            alt={selectedChat?.professor?.name}
+                                            width={40}
+                                            height={40}
+                                            className={"rounded-full border  w-[40px] h-[40px] object-cover border-gray-200"}
                                         />
                                         <div>
                                             <h2 className={"text-gray-800 font-semibold text-base"}>

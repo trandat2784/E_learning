@@ -5,6 +5,7 @@ import {isProtected} from "../utils/protected";
 
 const fetchUser = async (isLoggedIn: boolean) => {
     const config = isLoggedIn ? isProtected : {}
+    console.log("Fetching user...", config);
     const response = await axiosInstance.get('/api/logged-in-user', config);
     return response.data.user;
 };

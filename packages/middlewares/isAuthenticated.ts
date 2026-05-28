@@ -4,7 +4,9 @@ import jwt from 'jsonwebtoken';
 
 const isAuthenticated = async (req: any, res: Response, next: NextFunction) => {
     try {
+        console.log("logged user", req.user);
         const token = req.cookies["access_token"] || req.cookies["professor-access-token"] || req.headers.authorization?.split('')[1];
+        console.log("token is authen", token)
         if (!token) {
             return res.status(401).json({message: 'Unauthorized!token missing'});
         }

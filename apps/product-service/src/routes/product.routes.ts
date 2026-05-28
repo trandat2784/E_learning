@@ -2,7 +2,9 @@ import express, {Router} from "express";
 import {
     createCourse,
     createDiscountCodes,
+    createLesson,
     deleteCourse,
+    deleteCourseVideo,
     deleteDiscountCode,
     deleteProductImage,
     getAllCourses,
@@ -14,9 +16,12 @@ import {
     getFilteredClasses,
     getFilteredCourses,
     getFilteredEvents,
+    getLessonById,
+    permanentDeleteLesson,
     restoreCourse,
     searchCourses,
-    uploadProductImage
+    uploadProductImage,
+    uploadVideo
 } from "../controllers/product.controller";
 import isAuthenticated from "../../../../packages/middlewares/isAuthenticated";
 
@@ -33,10 +38,16 @@ router.delete("/delete-course/:courseId", isAuthenticated, deleteCourse);
 router.put("/restore-course/:courseId", isAuthenticated, restoreCourse);
 router.get("/get-all-courses", getAllCourses);
 router.get("/get-all-events", getAllEvents);
-router.get("/get-course/:slug", getCoursesDetail);
+router.get("/get-course/:id", getCoursesDetail);
 router.get("/get-filtered-courses", getFilteredCourses);
 router.get("/api/get-filtered-offers", getFilteredEvents);
 router.get("/api/get-filtered-classes", getFilteredClasses);
 router.get("/search-courses", searchCourses);
 // router.get("/top-classes", topClasses);
+router.post("/upload-course-video", uploadVideo);
+router.delete("/delete-course-video", deleteCourseVideo);
+
+router.post('/:courseId/lessons', createLesson);
+router.get('/lessons/:lessonId', getLessonById);
+router.delete('/lessons/:lessonId/permanent', permanentDeleteLesson);
 export default router;

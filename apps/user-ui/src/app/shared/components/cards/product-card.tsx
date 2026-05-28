@@ -62,8 +62,8 @@ const ProductCard = ({product, isEvent}: { product: any; isEvent?: boolean }) =>
                     </div>
                 )
             }
-            <Link href={`/course/${product?.slug}`}>
-                <img src={product?.images[0]?.url || ""} alt={product?.title}
+            <Link href={`/course/${product?.id}`}>
+                <img src={product?.image_url || ""} alt={product?.title}
                      width={"300"}
                      height={"300"}
                      className={"w-full h-[200px] object-cover mx-auto rounded-t-md"}
@@ -74,7 +74,7 @@ const ProductCard = ({product, isEvent}: { product: any; isEvent?: boolean }) =>
             >
                 {product?.Class?.name}
             </Link>
-            <Link href={`/product/${product?.slug}`}
+            <Link href={`/product/${product?.id}`}
             >
                 <h3 className={"text-base font-semibold px-2 text-gray-800 "}>
 
@@ -93,9 +93,9 @@ const ProductCard = ({product, isEvent}: { product: any; isEvent?: boolean }) =>
                         ${product?.regular_price}
                     </span>
                 </div>
-                <span className={"text-green-500 text-sm font-semibold "}>
-                    {product?.totalSales} sold
-                </span>
+                {/*<span className={"text-green-500 text-sm font-semibold "}>*/}
+                {/*    {product?.totalSales} sold*/}
+                {/*</span>*/}
             </div>
             {
                 isEvent && timeLeft && (
